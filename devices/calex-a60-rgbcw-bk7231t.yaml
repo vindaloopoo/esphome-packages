@@ -1,0 +1,120 @@
+esphome:
+  # calex-a60-rgbcw-bk7231t
+  name: "calex-a60-rgbcw-bk7231t"
+  friendly_name: Calex A60 RGBCW
+  #name_add_mac_suffix: true
+  min_version: 2026.1.4
+  project:
+    name: "hewes.leds_party"
+    version: "1.0.0"
+
+bk72xx:
+  board: generic-bk7231t-qfn32-tuya
+
+logger:
+
+web_server:
+
+captive_portal:
+
+mdns:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_platform_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  fast_connect: true
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Calex A60 RGBCW Fallback Hotspot"
+    password: !secret wifi_ap_password
+
+button:
+  - platform: restart
+    name: Restart
+
+debug:
+  update_interval: 30s
+
+text_sensor:
+  - platform: debug
+    reset_reason:
+      name: Reset Reason
+  - platform: libretiny
+    version:
+      name: LibreTiny Version
+
+sensor:
+  - platform: uptime
+    name: Uptime
+
+bp5758d:
+  clock_pin: P24
+  data_pin: P26
+
+output:
+  - platform: bp5758d
+    id: output_red
+    channel: 2
+    current: 14
+  - platform: bp5758d
+    id: output_green
+    channel: 1
+    current: 14
+  - platform: bp5758d
+    id: output_blue
+    channel: 3
+    current: 14
+  - platform: bp5758d
+    id: output_cold
+    channel: 5
+    current: 30
+  - platform: bp5758d
+    id: output_warm
+    channel: 4
+    current: 30
+
+light:
+  - platform: rgbww
+    id: light_rgbww
+    name: Light
+    color_interlock: true
+    cold_white_color_temperature: 6500 K
+    warm_white_color_temperature: 2700 K
+    red: output_red
+    green: output_green
+    blue: output_blue
+    cold_white: output_cold
+    warm_white: output_warm
+    restore_mode: RESTORE_AND_ON
+    effects:
+      - lambda:
+          name: My Custom Effect
+          update_interval: 1s
+          lambda: |-
+            static int state = 0;
+            auto call = id(light_rgbww).turn_on();
+            // Transition of 1000ms = 1s
+            call.set_transition_length(1000);
+            if (state == 0) {
+              call.set_rgb(1.0, 1.0, 1.0);
+            } else if (state == 1) {
+              call.set_rgb(1.0, 0.0, 1.0);
+            } else if (state == 2) {
+              call.set_rgb(0.0, 0.0, 1.0);
+            } else {
+              call.set_rgb(1.0, 0.0, 0.0);
+            }
+            call.perform();
+            state += 1;
+            if (state == 4)
+              state = 0;
