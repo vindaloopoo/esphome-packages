@@ -2,7 +2,7 @@ esphome:
   # calex-a60-rgbcw-bk7231t
   name: "calex-a60-rgbcw-bk7231t"
   friendly_name: Calex A60 RGBCW
-  #name_add_mac_suffix: true
+  name_add_mac_suffix: true
   min_version: 2026.1.4
   project:
     name: "hewes.leds_party"
@@ -13,7 +13,7 @@ bk72xx:
 
 logger:
 
-web_server:
+#web_server:
 
 captive_portal:
 
